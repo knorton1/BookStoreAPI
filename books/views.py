@@ -23,4 +23,4 @@ def getBooks(request):
         
 def welcomePage(request):
     if request.method == 'GET':
-        return Response('Welcome to Group 10\'s bookstore API!', safe= False)
+        return JsonResponse('Welcome to Group 10\'s bookstore API!', safe = False)
