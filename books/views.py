@@ -10,6 +10,10 @@ from .models import Books, Authors
 from .serializers import BooksSerializers, AuthorsSerializers
 
 # Create your views here.
+def welcomePage(request):
+    if request.method == 'GET':
+        return JsonResponse('Welcome to Group 10\'s bookstore API!', safe = False)
+
 @api_view(['GET', 'POST'])
 def getBooks(request):
     if request.method == 'GET':
@@ -21,6 +25,27 @@ def getBooks(request):
         if books_serializer.is_valid():
             return Response(books_serializer.data, status = status.HTTP_201_CREATED)
         
-def welcomePage(request):
+    
+@api_view(['GET', 'POST'])
+def getAuthors(request):
     if request.method == 'GET':
-        return JsonResponse('Welcome to Group 10\'s bookstore API!', safe = False)
+        authors = Authors.objects.all()
+        authors_serializer = AuthorsSerializers(authors, many = True)
+        return JsonResponse(authors_serializer.data, safe= False)
+    if request.method == 'POST':
+        authors_serializer = AuthorsSerializers(data = request.data)
+        if authors_serializer.is_valid():
+            authors_serializer.save()
+            return Response(authors_serializer.data, status = status.HTTP_201_CREATED)
+   
+@api_view(['GET'])     
+def booksByAuthor(request, author):
+    try:
+        books = Books.objects.all()
+    except Books.DoesNotExist:
+        return Response(status = status.HTTP_404_NOT_FOUND)
+    
+    
+    if request.method == 'GET':
+        books_serializer = BooksSerializers(books)
+        return Response(books_serializer.data)
