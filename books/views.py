@@ -59,11 +59,13 @@ def createAuthor(request):
    
 @api_view(['GET'])     
 def booksByAuthor(request, author):
-    if request.method == 'GET':
-        byAuthor = []
-        for book in Books.objects.all():
-            if book.bookAuthor.replace('', ' ') == Books.bookAuthor:
-                byAuthor.append(book)
     
-        books_serializer = BooksSerializers(byAuthor, many = True)
-        return Response(books_serializer.data)
+    try:
+        books = Books.objects.all().filter(bookAuthor = author)
+    except Books.DoesNotExist:
+        return Response(status = status.HTTP_404_NOT_FOUND)
+    
+    
+    if request.method == 'GET':
+        books_serializer = BooksSerializers(books, many = True)
+        return JsonResponse(books_serializer.data, safe = False)
